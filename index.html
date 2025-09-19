@@ -1,0 +1,713 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo Normalizado con Botón X</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; display:flex; background:#f9f9f9; flex-direction:column; min-height:100vh; }
+    .navbar {
+      width:100%; position:fixed; top:0; left:0; right:0; height:50px;
+      background:#1976d2; color:white; display:flex; justify-content:space-between; align-items:center;
+      padding:0 20px; z-index:2000;
+    }
+    .navbar h1 { font-size:18px; margin:0; }
+    .navbar select { padding:5px 10px; border-radius:6px; border:none; }
+    .content { flex:1; margin-top:60px; display:flex; }
+    .container { flex:1; display:flex; flex-wrap:wrap; gap:20px; padding:20px; }
+    .producto {
+      background:white; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      padding:15px; width:240px;
+    }
+    .producto img { width:100%; border-radius:8px; height:200px; object-fit:contain; }
+    .producto h3 { margin:10px 0; font-size:15px; }
+    .presentaciones { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+    .presentacion-btn {
+      padding:6px 10px; border-radius:20px; border:1px solid #1976d2;
+      background:#fff; color:#1976d2; cursor:pointer; font-size:13px;
+      transition: all 0.2s ease;
+    }
+    .presentacion-btn.active { background:#1976d2; color:white; }
+    .presentacion-btn:hover { background:#e3f2fd; }
+    .cantidad { display:flex; align-items:center; margin:10px 0; }
+    .cantidad button { width:35px; height:35px; font-size:18px; }
+    .cantidad input {
+      width:70px; height:35px; text-align:center; font-size:18px; margin:0 8px;
+    }
+    .agregar {
+      background:#1976d2; color:white; border:none;
+      padding:8px 12px; border-radius:6px; cursor:pointer; font-size:14px;
+    }
+    .agregar:hover { background:#1565c0; }
+    .sidebar {
+      width:300px; background:#fff; border-left:1px solid #ddd;
+      display:flex; flex-direction:column; justify-content:space-between;
+      position:sticky; top:60px; height:calc(100vh - 60px);
+    }
+    .carrito-lista { flex:1; overflow-y:auto; padding:15px; }
+    .carrito-item { font-size:14px; margin:5px 0; }
+    .btn-whatsapp {
+      padding:12px; border:none; flex:1;
+      background:#1976d2; color:white; border-radius:30px; cursor:pointer;
+      font-size:16px; display:flex; align-items:center; justify-content:center;
+      gap:8px; box-shadow:0 3px 6px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+    }
+    .btn-whatsapp:hover { background:#1565c0; }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    .btn-clear {
+      width:40px; height:40px; border-radius:50%;
+      border:none; background:#e53935; color:white;
+      font-size:18px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 5px rgba(0,0,0,0.2);
+      transition: background 0.2s ease;
+    }
+    .btn-clear:hover {
+      background:#c62828;
+      animation: shake 0.3s;
+    }
+
+    .footer {
+      text-align:center; font-size:12px; color:rgba(0,0,0,0.4);
+      margin:20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>Catálogo</h1>
+  <select id="filtro-clase" onchange="filtrarClase()">
+    <option value="all">Todas las Clases</option>
+<option value="whisky">Whisky</option>
+  </select>
+</div>
+
+<div class="content">
+  <div class="container">
+
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/fireballcinnamon.png" alt="Fireball Cinnamon">
+      <h3>Fireball Cinnamon</h3>
+      <div class="presentaciones" id="pres-prod0">
+    
+        <button class="presentacion-btn" data-codigo="Wfc" 
+          onclick="seleccionarPresentacion('prod0','750ml','Wfc',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod0',-1)">-</button>
+        <input type="number" id="cant-prod0" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod0',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('fireballcinnamon','prod0')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/glenfiddich12years.png" alt="Glenfiddich 12 years">
+      <h3>Glenfiddich 12 years</h3>
+      <div class="presentaciones" id="pres-prod1">
+    
+        <button class="presentacion-btn" data-codigo="WG12" 
+          onclick="seleccionarPresentacion('prod1','750ml','WG12',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod1',-1)">-</button>
+        <input type="number" id="cant-prod1" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod1',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('glenfiddich12years','prod1')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/buchanans12years.png" alt="Buchanan's 12 years">
+      <h3>Buchanan's 12 years</h3>
+      <div class="presentaciones" id="pres-prod2">
+    
+        <button class="presentacion-btn" data-codigo="WB12" 
+          onclick="seleccionarPresentacion('prod2','750ml','WB12',this)">
+          750ml
+        </button>
+        
+        <button class="presentacion-btn" data-codigo="WB12" 
+          onclick="seleccionarPresentacion('prod2','1000ml','WB12',this)">
+          1000ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod2',-1)">-</button>
+        <input type="number" id="cant-prod2" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod2',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('buchanans12years','prod2')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/buchanans18years.png" alt="Buchanan's 18 years">
+      <h3>Buchanan's 18 years</h3>
+      <div class="presentaciones" id="pres-prod3">
+    
+        <button class="presentacion-btn" data-codigo="WBB" 
+          onclick="seleccionarPresentacion('prod3','750ml','WBB',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod3',-1)">-</button>
+        <input type="number" id="cant-prod3" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod3',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('buchanans18years','prod3')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/buchanansmasterblended.png" alt="Buchanan's Master Blended">
+      <h3>Buchanan's Master Blended</h3>
+      <div class="presentaciones" id="pres-prod4">
+    
+        <button class="presentacion-btn" data-codigo="WBM" 
+          onclick="seleccionarPresentacion('prod4','750ml','WBM',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod4',-1)">-</button>
+        <input type="number" id="cant-prod4" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod4',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('buchanansmasterblended','prod4')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jhonniewalkerredlabel.png" alt="Jhonnie Walker Red Label">
+      <h3>Jhonnie Walker Red Label</h3>
+      <div class="presentaciones" id="pres-prod5">
+    
+        <button class="presentacion-btn" data-codigo="WJRL" 
+          onclick="seleccionarPresentacion('prod5','700ml','WJRL',this)">
+          700ml
+        </button>
+        
+        <button class="presentacion-btn" data-codigo="WJRL" 
+          onclick="seleccionarPresentacion('prod5','1000ml','WJRL',this)">
+          1000ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod5',-1)">-</button>
+        <input type="number" id="cant-prod5" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod5',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jhonniewalkerredlabel','prod5')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jhonniewalkerblacklabel12years.png" alt="Jhonnie Walker Black Label 12 years">
+      <h3>Jhonnie Walker Black Label 12 years</h3>
+      <div class="presentaciones" id="pres-prod6">
+    
+        <button class="presentacion-btn" data-codigo="WJBL" 
+          onclick="seleccionarPresentacion('prod6','750ml','WJBL',this)">
+          750ml
+        </button>
+        
+        <button class="presentacion-btn" data-codigo="WJBL" 
+          onclick="seleccionarPresentacion('prod6','1000ml','WJBL',this)">
+          1000ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod6',-1)">-</button>
+        <input type="number" id="cant-prod6" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod6',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jhonniewalkerblacklabel12years','prod6')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jhonniewalkergreenlabel.png" alt="Jhonnie Walker Green Label">
+      <h3>Jhonnie Walker Green Label</h3>
+      <div class="presentaciones" id="pres-prod7">
+    
+        <button class="presentacion-btn" data-codigo="WJGL" 
+          onclick="seleccionarPresentacion('prod7','700ml','WJGL',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod7',-1)">-</button>
+        <input type="number" id="cant-prod7" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod7',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jhonniewalkergreenlabel','prod7')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jhonniewalkeretiquetagoldresserve.png" alt="Jhonnie Walker Etiqueta Gold Resserve">
+      <h3>Jhonnie Walker Etiqueta Gold Resserve</h3>
+      <div class="presentaciones" id="pres-prod8">
+    
+        <button class="presentacion-btn" data-codigo="WJGR" 
+          onclick="seleccionarPresentacion('prod8','750ml','WJGR',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod8',-1)">-</button>
+        <input type="number" id="cant-prod8" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod8',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jhonniewalkeretiquetagoldresserve','prod8')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jhonniewalkerblue.png" alt="Jhonnie Walker Blue">
+      <h3>Jhonnie Walker Blue</h3>
+      <div class="presentaciones" id="pres-prod9">
+    
+        <button class="presentacion-btn" data-codigo="WJB" 
+          onclick="seleccionarPresentacion('prod9','750ml','WJB',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod9',-1)">-</button>
+        <input type="number" id="cant-prod9" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod9',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jhonniewalkerblue','prod9')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jbrare.png" alt="J&B Rare">
+      <h3>J&B Rare</h3>
+      <div class="presentaciones" id="pres-prod10">
+    
+        <button class="presentacion-btn" data-codigo="WJBR" 
+          onclick="seleccionarPresentacion('prod10','750ml','WJBR',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod10',-1)">-</button>
+        <input type="number" id="cant-prod10" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod10',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jbrare','prod10')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/chivasregal12years.png" alt="Chivas Regal 12 years">
+      <h3>Chivas Regal 12 years</h3>
+      <div class="presentaciones" id="pres-prod11">
+    
+        <button class="presentacion-btn" data-codigo="WCR12" 
+          onclick="seleccionarPresentacion('prod11','700ml','WCR12',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod11',-1)">-</button>
+        <input type="number" id="cant-prod11" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod11',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('chivasregal12years','prod11')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/chivasregal18years.png" alt="Chivas Regal 18 years">
+      <h3>Chivas Regal 18 years</h3>
+      <div class="presentaciones" id="pres-prod12">
+    
+        <button class="presentacion-btn" data-codigo="WCR18" 
+          onclick="seleccionarPresentacion('prod12','700ml','WCR18',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod12',-1)">-</button>
+        <input type="number" id="cant-prod12" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod12',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('chivasregal18years','prod12')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jackdanielstennesseehoney.png" alt="Jack Daniel's Tennessee Honey">
+      <h3>Jack Daniel's Tennessee Honey</h3>
+      <div class="presentaciones" id="pres-prod13">
+    
+        <button class="presentacion-btn" data-codigo="WJDTH" 
+          onclick="seleccionarPresentacion('prod13','700ml','WJDTH',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod13',-1)">-</button>
+        <input type="number" id="cant-prod13" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod13',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jackdanielstennesseehoney','prod13')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jackdaniels.png" alt="Jack Daniel's">
+      <h3>Jack Daniel's</h3>
+      <div class="presentaciones" id="pres-prod14">
+    
+        <button class="presentacion-btn" data-codigo="WJDT" 
+          onclick="seleccionarPresentacion('prod14','700ml','WJDT',this)">
+          700ml
+        </button>
+        
+        <button class="presentacion-btn" data-codigo="WJDT" 
+          onclick="seleccionarPresentacion('prod14','1000ml','WJDT',this)">
+          1000ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod14',-1)">-</button>
+        <input type="number" id="cant-prod14" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod14',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jackdaniels','prod14')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/oldparr12years.png" alt="Old Parr 12 Years">
+      <h3>Old Parr 12 Years</h3>
+      <div class="presentaciones" id="pres-prod15">
+    
+        <button class="presentacion-btn" data-codigo="WOP12" 
+          onclick="seleccionarPresentacion('prod15','750ml','WOP12',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod15',-1)">-</button>
+        <input type="number" id="cant-prod15" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod15',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('oldparr12years','prod15')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/ballantinesfinest.png" alt="Ballantine's Finest">
+      <h3>Ballantine's Finest</h3>
+      <div class="presentaciones" id="pres-prod16">
+    
+        <button class="presentacion-btn" data-codigo="WBF" 
+          onclick="seleccionarPresentacion('prod16','700ml','WBF',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod16',-1)">-</button>
+        <input type="number" id="cant-prod16" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod16',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('ballantinesfinest','prod16')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/passportscotch.png" alt="Passport Scotch">
+      <h3>Passport Scotch</h3>
+      <div class="presentaciones" id="pres-prod17">
+    
+        <button class="presentacion-btn" data-codigo="WPS" 
+          onclick="seleccionarPresentacion('prod17','700ml','WPS',this)">
+          700ml
+        </button>
+        
+        <button class="presentacion-btn" data-codigo="WPS" 
+          onclick="seleccionarPresentacion('prod17','1000ml','WPS',this)">
+          1000ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod17',-1)">-</button>
+        <input type="number" id="cant-prod17" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod17',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('passportscotch','prod17')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/themacallan12anostriplecaskmatured.png" alt="The Macallan 12 años Triple Cask Matured">
+      <h3>The Macallan 12 años Triple Cask Matured</h3>
+      <div class="presentaciones" id="pres-prod18">
+    
+        <button class="presentacion-btn" data-codigo="WM12T" 
+          onclick="seleccionarPresentacion('prod18','700ml','WM12T',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod18',-1)">-</button>
+        <input type="number" id="cant-prod18" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod18',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('themacallan12anostriplecaskmatured','prod18')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/themacallan12anosdoblecask.png" alt="The Macallan 12 años Doble Cask">
+      <h3>The Macallan 12 años Doble Cask</h3>
+      <div class="presentaciones" id="pres-prod19">
+    
+        <button class="presentacion-btn" data-codigo="WM12D" 
+          onclick="seleccionarPresentacion('prod19','700ml','WM12D',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod19',-1)">-</button>
+        <input type="number" id="cant-prod19" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod19',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('themacallan12anosdoblecask','prod19')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/themacallan18anos.png" alt="The Macallan 18 años">
+      <h3>The Macallan 18 años</h3>
+      <div class="presentaciones" id="pres-prod20">
+    
+        <button class="presentacion-btn" data-codigo="WM18" 
+          onclick="seleccionarPresentacion('prod20','750ml','WM18',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod20',-1)">-</button>
+        <input type="number" id="cant-prod20" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod20',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('themacallan18anos','prod20')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/blackandwhite.png" alt="Black and White">
+      <h3>Black and White</h3>
+      <div class="presentaciones" id="pres-prod21">
+    
+        <button class="presentacion-btn" data-codigo="WBW" 
+          onclick="seleccionarPresentacion('prod21','700ml','WBW',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod21',-1)">-</button>
+        <input type="number" id="cant-prod21" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod21',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('blackandwhite','prod21')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/williamlawsons.png" alt="William Lawson's">
+      <h3>William Lawson's</h3>
+      <div class="presentaciones" id="pres-prod22">
+    
+        <button class="presentacion-btn" data-codigo="WWL" 
+          onclick="seleccionarPresentacion('prod22','700ml','WWL',this)">
+          700ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod22',-1)">-</button>
+        <input type="number" id="cant-prod22" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod22',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('williamlawsons','prod22')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jamenson.png" alt="Jamenson">
+      <h3>Jamenson</h3>
+      <div class="presentaciones" id="pres-prod23">
+    
+        <button class="presentacion-btn" data-codigo="WJ" 
+          onclick="seleccionarPresentacion('prod23','750ml','WJ',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod23',-1)">-</button>
+        <input type="number" id="cant-prod23" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod23',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jamenson','prod23')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/bushmills10anos.png" alt="Bushmills 10 años">
+      <h3>Bushmills 10 años</h3>
+      <div class="presentaciones" id="pres-prod24">
+    
+        <button class="presentacion-btn" data-codigo="WB110" 
+          onclick="seleccionarPresentacion('prod24','750ml','WB110',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod24',-1)">-</button>
+        <input type="number" id="cant-prod24" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod24',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('bushmills10anos','prod24')">Agregar</button>
+    </div>
+    
+    <div class="producto" data-clase="whisky">
+      <img src="imagenes-producto/whisky/jimbeambourbonwhitelabel.png" alt="Jim Beam Bourbon White Label">
+      <h3>Jim Beam Bourbon White Label</h3>
+      <div class="presentaciones" id="pres-prod25">
+    
+        <button class="presentacion-btn" data-codigo="WJBBW" 
+          onclick="seleccionarPresentacion('prod25','750ml','WJBBW',this)">
+          750ml
+        </button>
+        
+      </div>
+      <div class="cantidad">
+        <button onclick="cambiarCantidad('prod25',-1)">-</button>
+        <input type="number" id="cant-prod25" value="1" min="1" max="999">
+        <button onclick="cambiarCantidad('prod25',1)">+</button>
+      </div>
+      <button class="agregar" onclick="agregarCarrito('jimbeambourbonwhitelabel','prod25')">Agregar</button>
+    </div>
+    
+  </div>
+
+  <div class="sidebar">
+    <div class="carrito-lista" id="carrito">
+      <h3>Carrito</h3>
+      <p>Vacío</p>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin:15px;">
+      <button class="btn-clear" onclick="vaciarCarrito()">✖</button>
+      <button class="btn-whatsapp" onclick="enviarWhatsApp()">➡ ENVIAR POR WHATSAPP</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  By MiguelNavarro with Magi
+</div>
+
+<script>
+let carrito = [];
+let seleccion = {};
+
+function seleccionarPresentacion(id, presentacion, codigo, boton) {
+  if (!codigo) { codigo = "SIN-CODIGO"; }
+  seleccion[id] = {presentacion, codigo};
+  let botones = boton.parentElement.querySelectorAll(".presentacion-btn");
+  botones.forEach(b => b.classList.remove("active"));
+  boton.classList.add("active");
+}
+
+function cambiarCantidad(id, delta) {
+  let input = document.getElementById("cant-" + id);
+  let actual = parseInt(input.value) || 1;
+  actual = Math.max(1, actual + delta);
+  input.value = actual;
+}
+
+function agregarCarrito(nombre, id) {
+  if (!seleccion[id]) {
+    alert("Selecciona una presentación");
+    return;
+  }
+  let cantidad = parseInt(document.getElementById("cant-" + id).value) || 1;
+  let {presentacion, codigo} = seleccion[id];
+  if (!codigo) { codigo = "SIN-CODIGO"; }
+
+  let existente = carrito.find(item => item.nombre === nombre && item.presentacion === presentacion && item.codigo === codigo);
+  if (existente) {
+    existente.cantidad += cantidad;
+  } else {
+    carrito.push({ nombre, presentacion, codigo, cantidad });
+  }
+  mostrarCarrito();
+}
+
+function mostrarCarrito() {
+  let div = document.getElementById("carrito");
+  if (carrito.length === 0) {
+    div.innerHTML = "<h3>Carrito</h3><p>Vacío</p>";
+    return;
+  }
+  div.innerHTML = "<h3>Carrito</h3>";
+  carrito.forEach(item => {
+    div.innerHTML += `<div class="carrito-item">${item.cantidad} x ${item.nombre} (${item.presentacion}) – Código: ${item.codigo}</div>`;
+  });
+}
+
+function vaciarCarrito() {
+  carrito = [];
+  mostrarCarrito();
+}
+
+function enviarWhatsApp() {
+  if (carrito.length === 0) { alert("Carrito vacío"); return; }
+  let mensaje = "Pedido:\n";
+  carrito.forEach(item => {
+    mensaje += `${item.cantidad} x ${item.nombre} (${item.presentacion}) – Código: ${item.codigo}\n`;
+  });
+  let url = "https://wa.me/5219985036678?text=" + encodeURIComponent(mensaje);
+  window.open(url, "_blank");
+}
+
+function filtrarClase() {
+  let filtro = document.getElementById("filtro-clase").value;
+  let productos = document.querySelectorAll(".producto");
+  productos.forEach(p => {
+    if (filtro === "all" || p.dataset.clase === filtro) {
+      p.style.display = "block";
+    } else {
+      p.style.display = "none";
+    }
+  });
+}
+</script>
+
+</body>
+</html>
